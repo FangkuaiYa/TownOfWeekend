@@ -1,0 +1,9 @@
+﻿using System.Collections.Generic;
+using UnityEngine;
+
+namespace TownOfWeekend.Patches.CustomHats;
+
+public static class HatCache
+{
+    public static Dictionary<string, Sprite> hatViewDatas = new();
+}

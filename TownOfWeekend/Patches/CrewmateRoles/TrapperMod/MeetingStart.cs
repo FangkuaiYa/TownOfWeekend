@@ -1,0 +1,35 @@
+﻿using System;
+using System.Linq;
+using HarmonyLib;
+using TownOfWeekend.Roles;
+
+namespace TownOfWeekend.CrewmateRoles.TrapperMod;
+
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+public class MeetingStart
+{
+    public static void Postfix(MeetingHud __instance)
+    {
+        if (PlayerControl.LocalPlayer.Data.IsDead) return;
+        if (!PlayerControl.LocalPlayer.Is(RoleEnum.Trapper)) return;
+        var trapperRole = Role.GetRole<Trapper>(PlayerControl.LocalPlayer);
+        if (trapperRole.trappedPlayers.Count == 0)
+        {
+            HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer,
+                "No players entered any of your traps");
+        }
+        else if (trapperRole.trappedPlayers.Count < CustomGameOptions.MinAmountOfPlayersInTrap)
+        {
+            HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer,
+                "Not enough players triggered your traps");
+        }
+        else
+        {
+            var message = "Roles caught in your trap:\n";
+            foreach (var role in trapperRole.trappedPlayers.OrderBy(x => Guid.NewGuid())) message += $" {role},";
+            message.Remove(message.Length - 1, 1);
+            if (HudManager.Instance)
+                HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, message);
+        }
+    }
+}
